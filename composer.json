@@ -1,0 +1,26 @@
+{
+  "name": "offsite-solutions/eisodos-sql-parser",
+  "description": "Eisodos SQL parser",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Offsite Solutions Ltd.",
+      "email": "info@offsite-solutions.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.2.0",
+    "offsite-solutions/eisodos": "*",
+    "offsite-solutions/eisodos-db-connectors": "*"
+  },
+  "require-dev": {
+  },
+  "suggest": {
+  },
+  "autoload": {
+    "psr-0": {
+      "Eisodos\\": "src/"
+    }
+  }
+}
