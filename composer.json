@@ -16,19 +16,11 @@
         "options": {
             "symlink": true
         }
-    },
-    {
-        "type": "path",
-        "url": "../DBConnector",
-        "options": {
-            "symlink": true
-        }
     }
   ],
   "require": {
     "php": ">=7.2.0",
-    "offsite-solutions/eisodos": "@dev",
-    "offsite-solutions/eisodos-db-connectors": "@dev"
+    "offsite-solutions/eisodos": "@dev"
   },
   "require-dev": {
   },
