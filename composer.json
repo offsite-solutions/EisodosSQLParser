@@ -9,10 +9,26 @@
     }
   ],
   "minimum-stability": "dev",
+  "repositories": [
+    {
+        "type": "path",
+        "url": "../Base",
+        "options": {
+            "symlink": true
+        }
+    },
+    {
+        "type": "path",
+        "url": "../DBConnector",
+        "options": {
+            "symlink": true
+        }
+    }
+  ],
   "require": {
     "php": ">=7.2.0",
-    "offsite-solutions/eisodos": "*",
-    "offsite-solutions/eisodos-db-connectors": "*"
+    "offsite-solutions/eisodos": "@dev",
+    "offsite-solutions/eisodos-db-connectors": "@dev"
   },
   "require-dev": {
   },
