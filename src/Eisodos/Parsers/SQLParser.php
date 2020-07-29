@@ -34,9 +34,8 @@
     
     /**
      * SQLParser constructor.
-     * @param $DBConnectors_ Eisodos\DBConnectors
      */
-    public function __construct($DBConnectors_) {
+    public function __construct() {
     }
     
     /**
