@@ -77,7 +77,19 @@
         /**
          * @var array = ['rows'=>array, 'columns'=>array]
          */
-        $resultSet = call_user_func_array($this->_callback, $structureParameters_);
+        //$resultSet = call_user_func_array($this->_callback, $structureParameters_);
+        
+        if (!array_key_exists("DB", $structureParameters_)) $structureParameters_["DB"] = "db1";
+        if (strlen($structureParameters_["DB"]) > 2
+            and substr(trim($structureParameters_["DB"]), 0, 2) === "db") {
+          $dbindex = 1 * substr(trim($structureParameters_["DB"]), 2);
+        } else if (strlen($structureParameters_["DB"]) > 2) {
+          $dbindex = 1 * Eisodos::$parameterHandler->getParam($structureParameters_["DB"], "1");
+        }
+        
+        if (!Eisodos::$dbConnectors->connector($dbindex)->connected()) Eisodos::$dbConnectors->connector($dbindex)->connect();
+        $resultSet=Eisodos::$dbConnectors->connector($dbindex)->query($structureParameters_["SQL"],RT_RAW);
+        
         $result = '';
         
         if ($resultSet === false) {
