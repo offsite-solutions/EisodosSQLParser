@@ -1,6 +1,6 @@
-<?php
-
-use Eisodos\Eisodos;
+<?php /** @noinspection ALL */
+  
+  use Eisodos\Eisodos;
 use Eisodos\DBConnectors;
 use Eisodos\Parsers\SQLParser;
 
@@ -23,7 +23,7 @@ try {
 
     DBConnectors::getInstance()->init([]);
 
-    Eisodos::$templateEngine->registerParser(new SQLParser(DBConnectors::getInstance()));
+    Eisodos::$templateEngine->registerParser(new SQLParser());
 
     print ("* Template - test1 \n");
     print (Eisodos::$templateEngine->getTemplate('test1',[],false));

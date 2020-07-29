@@ -61,7 +61,7 @@
         $structureParameters_[substr($parameterName_, 0, -1)] = $default;
       }
       
-      if ($structureParameters_[substr($parameterName_, 0, -1)] == "") {
+      if ($structureParameters_[substr($parameterName_, 0, -1)] === "") {
         $structureParameters_[substr($parameterName_, 0, -1)] = $default;
       }
     }
@@ -120,13 +120,13 @@
               Eisodos::$templateEngine->getTemplate($structureParameters_["FOOTNULL"], array(), false);
           } else {
             $LColNames = $resultSet['columns'];
-            if (preg_match('/[0-9]/', $structureParameters_["ROW"]) and is_numeric(
+            if (preg_match('/[\d]/', $structureParameters_["ROW"]) and is_numeric(
                 $structureParameters_["ROW"]
               )) {
               $k = -1;
               foreach ($LColNames as $key => $value) {
                 $k++;
-                if ($k == (integer)$structureParameters_["ROW"]) {
+                if ($k === (integer)$structureParameters_["ROW"]) {
                   $RowTemplate = $key;
                   break;
                 }
@@ -138,8 +138,8 @@
             $row = $resultSet['rows'][$a];
             do {
               $a++;
-              if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWBEGIN"] != "")) {
-                if (($a - 1) % (integer)$structureParameters_["TABLECOLS"] == 0) {
+              if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWBEGIN"] !== "")) {
+                if (($a - 1) % (integer)$structureParameters_["TABLECOLS"] === 0) {
                   $tr++;
                   Eisodos::$parameterHandler->setParam("SQLTABLEROWCOUNT", (string)$tr);
                   $result .= Eisodos::$templateEngine->getTemplate(
@@ -163,15 +163,15 @@
               
               foreach ($LColNames as $colname => $colindex) {
                 Eisodos::$parameterHandler->setParam("SQL" . $colname, $row[$colname]);
-                if (strpos($colname, 'json__') == 0 and $row[$colname] != "") {
-                  foreach (json_decode($row[$colname], true) as $jskey => $jsvalue) {
+                if (strpos($colname, 'json__') === 0 and $row[$colname] !== "") {
+                  foreach (json_decode($row[$colname], true, 512, JSON_THROW_ON_ERROR) as $jskey => $jsvalue) {
                     Eisodos::$parameterHandler->setParam("sql" . $colname . "_" . $jskey, $jsvalue);
                     $jsonKeys[] = "sql" . $colname . "_" . $jskey;
                   }
                 }
               }
               try {
-                if (preg_match('/[0-9]/', $structureParameters_["ROW"])
+                if (preg_match('/[\d]/', $structureParameters_["ROW"])
                   and is_numeric($structureParameters_["ROW"])) {
                   $result .= Eisodos::$templateEngine->getMultiTemplate(
                     explode(",", $row[$RowTemplate]),
@@ -201,8 +201,8 @@
               } else {
                 $row = $resultSet['rows'][$a + 1];
               }
-              if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWEND"] != "")) {
-                if ((!$row) or ($a == (integer)$structureParameters_["ROWCOUNT"]) or ($a % (integer)$structureParameters_["TABLECOLS"] == 0)) {
+              if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWEND"] !== "")) {
+                if ((!$row) or ($a === (integer)$structureParameters_["ROWCOUNT"]) or ($a % (integer)$structureParameters_["TABLECOLS"] === 0)) {
                   $tr++;
                   Eisodos::$parameterHandler->setParam("SQLTABLEROWCOUNT", (string)$tr);
                   $result .= Eisodos::$templateEngine->getTemplate(
@@ -212,7 +212,7 @@
                   );
                 }
               }
-            } while (!(!$row or $a == (integer)$structureParameters_["ROWCOUNT"]));
+            } while (!(!$row or $a === (integer)$structureParameters_["ROWCOUNT"]));
             
             if ((integer)$structureParameters_["ROWCOUNT"] > 0) {
               Eisodos::$parameterHandler->setParam(
@@ -224,7 +224,7 @@
                 (string)((integer)$structureParameters_["ROWFROM"] - (integer)$structureParameters_["ROWCOUNT"])
               );
               $modT = "";
-              if (((integer)$structureParameters_["ROWFROM"] == 1) and ($row)) {
+              if (((integer)$structureParameters_["ROWFROM"] === 1) and ($row)) {
                 $modT = $structureParameters_["PAGEFIRST"];
               }
               if (((integer)$structureParameters_["ROWFROM"] > 1) and ($row)) {
@@ -233,8 +233,8 @@
               if (((integer)$structureParameters_["ROWFROM"] > 1) and (!$row)) {
                 $modT = $structureParameters_["PAGELAST"];
               }
-              if ($modT != "") {
-                if ($structureParameters_["HEAD"] != "") {
+              if ($modT !== "") {
+                if ($structureParameters_["HEAD"] !== "") {
                   $result = Eisodos::$templateEngine->getTemplate(
                       $structureParameters_["HEAD"] . Eisodos::$utils->ODecode(
                         array($structureParameters_["NOHEADPAGE"], "T", "", "." . $modT)
@@ -242,10 +242,10 @@
                       array(),
                       false
                     ) . $result;
-                } elseif ($structureParameters_["NOHEADPAGE"] != "T") {
+                } elseif ($structureParameters_["NOHEADPAGE"] !== "T") {
                   $result = Eisodos::$templateEngine->getTemplate($modT, array(), false) . $result;
                 }
-                if ($structureParameters_["FOOT"] != "") {
+                if ($structureParameters_["FOOT"] !== "") {
                   $result .= Eisodos::$templateEngine->getTemplate(
                     $structureParameters_["FOOT"] . Eisodos::$utils->ODecode(
                       array($structureParameters_["NOFOOTPAGE"], "T", "", "." . $modT)
@@ -253,18 +253,18 @@
                     array(),
                     false
                   );
-                } elseif ($structureParameters_["NOFOOTPAGE"] != "T") {
+                } elseif ($structureParameters_["NOFOOTPAGE"] !== "T") {
                   $result .= Eisodos::$templateEngine->getTemplate($modT, array(), false);
                 }
               } else {
-                if ($structureParameters_["HEAD"] != "") {
+                if ($structureParameters_["HEAD"] !== "") {
                   $result = Eisodos::$templateEngine->getTemplate(
                       $structureParameters_["HEAD"],
                       array(),
                       false
                     ) . $result;
                 }
-                if ($structureParameters_["FOOT"] != "") {
+                if ($structureParameters_["FOOT"] !== "") {
                   $result .= Eisodos::$templateEngine->getTemplate(
                     $structureParameters_["FOOT"],
                     array(),
@@ -273,14 +273,14 @@
                 }
               }
             } else {
-              if ($structureParameters_["HEAD"] != "") {
+              if ($structureParameters_["HEAD"] !== "") {
                 $result = Eisodos::$templateEngine->getTemplate(
                     $structureParameters_["HEAD"],
                     array(),
                     false
                   ) . $result;
               }
-              if ($structureParameters_["FOOT"] != "") {
+              if ($structureParameters_["FOOT"] !== "") {
                 $result .= Eisodos::$templateEngine->getTemplate(
                   $structureParameters_["FOOT"],
                   array(),
