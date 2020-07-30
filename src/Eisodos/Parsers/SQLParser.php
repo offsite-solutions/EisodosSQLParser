@@ -6,7 +6,7 @@
   use Eisodos\Eisodos;
   use Eisodos\Interfaces\ParserInterface;
   use Exception;
-  
+
   /**
    * Class SQLParser for backward compatibility
    * @package Eisodos
@@ -17,6 +17,12 @@
      * @var callable
      */
     private $_callback;
+    
+    /**
+     * SQLParser constructor.
+     */
+    public function __construct() {
+    }
     
     /**
      * @inheritDoc
@@ -33,9 +39,66 @@
     }
     
     /**
-     * SQLParser constructor.
+     * @inheritDoc
      */
-    public function __construct() {
+    public function parse($text_, $blockPosition = false): string {
+      $LSQL = array();
+      
+      $orig = substr($text_, $blockPosition);
+      $orig = substr($orig, 0, strpos($orig, '%SQL%>') + 5);
+      $sql = substr($orig, 6, -6);
+      
+      $this->_getSQLParam($sql, $LSQL, 'DB', 'db1');
+      $this->_getSQLParam($sql, $LSQL, 'CONVERTLATIN2UTF8');
+      $this->_getSQLParam($sql, $LSQL, 'CONVERTUTF82LATIN');
+      $this->_getSQLParam($sql, $LSQL, 'ROW');
+      $this->_getSQLParam($sql, $LSQL, 'HEAD');
+      $this->_getSQLParam($sql, $LSQL, 'FOOT');
+      $this->_getSQLParam($sql, $LSQL, 'ROWNULL');
+      $this->_getSQLParam($sql, $LSQL, 'HEADNULL');
+      $this->_getSQLParam($sql, $LSQL, 'FOOTNULL');
+      $this->_getSQLParam($sql, $LSQL, 'PAGEFIRST');
+      $this->_getSQLParam($sql, $LSQL, 'PAGELAST');
+      $this->_getSQLParam($sql, $LSQL, 'PAGEINNER');
+      $this->_getSQLParam($sql, $LSQL, 'NOHEADPAGE');
+      $this->_getSQLParam($sql, $LSQL, 'NOFOOTPAGE');
+      $this->_getSQLParam($sql, $LSQL, 'ROWFROM', '1');
+      $this->_getSQLParam($sql, $LSQL, 'ROWCOUNT', '0');
+      $this->_getSQLParam($sql, $LSQL, 'TABLECOLS', '1');
+      $this->_getSQLParam($sql, $LSQL, 'TABLEROWBEGIN');
+      $this->_getSQLParam($sql, $LSQL, 'TABLEROWEND');
+      $this->_getSQLParam($sql, $LSQL, 'GROUP');
+      $this->_getSQLParam($sql, $LSQL, 'GROUPBEGIN');
+      $this->_getSQLParam($sql, $LSQL, 'GROUPEND');
+      if (strpos($sql, 'SQL=') === false) {
+        $LSQL['SQL'] = '';
+      } else {
+        $LSQL['SQL'] = trim(trim(substr($sql, strpos($sql, 'SQL=') + 4)), "\n");
+      }
+      $LSQL['SQL'] = Eisodos::$templateEngine->parse($LSQL['SQL']);
+      try {
+        if ($LSQL['ROW'] == '') {
+          throw new Exception('No ROW template specified');
+        }
+        if ($LSQL['SQL'] == '') {
+          throw new Exception('No SQL template specified');
+        }
+        if (Eisodos::$parameterHandler->eq('ENABLEINLINESQL', 'F', 'T')) {
+          $result = Eisodos::$utils->replace_all($text_, $orig, '<!-- SQL not allowed -->', false, false);
+        } else {
+          $result = Eisodos::$utils->replace_all($text_, $orig, $this->_runSQL($LSQL), false, false);
+        }
+        
+        return ($result);
+      } catch (Exception $e) {
+        return Eisodos::$utils->replace_all(
+          $text_,
+          $orig,
+          '<!-- Error running query: ' . $e->getMessage() . ' -->',
+          false,
+          false
+        );
+      }
     }
     
     /**
@@ -81,14 +144,14 @@
         
         if (!array_key_exists("DB", $structureParameters_)) $structureParameters_["DB"] = "db1";
         if (strlen($structureParameters_["DB"]) > 2
-            and substr(trim($structureParameters_["DB"]), 0, 2) === "db") {
+          and substr(trim($structureParameters_["DB"]), 0, 2) === "db") {
           $dbindex = 1 * substr(trim($structureParameters_["DB"]), 2);
         } else if (strlen($structureParameters_["DB"]) > 2) {
           $dbindex = 1 * Eisodos::$parameterHandler->getParam($structureParameters_["DB"], "1");
         }
         
         if (!Eisodos::$dbConnectors->connector($dbindex)->connected()) Eisodos::$dbConnectors->connector($dbindex)->connect();
-        $resultSet=Eisodos::$dbConnectors->connector($dbindex)->query($structureParameters_["SQL"],RT_RAW);
+        $resultSet = Eisodos::$dbConnectors->connector($dbindex)->query(RT_RAW, $structureParameters_["SQL"]);
         
         $result = '';
         
@@ -296,69 +359,6 @@
       }
       
       return $result;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function parse($text_, $blockPosition = false): string {
-      $LSQL = array();
-      
-      $orig = substr($text_, $blockPosition);
-      $orig = substr($orig, 0, strpos($orig, '%SQL%>') + 5);
-      $sql = substr($orig, 6, -6);
-      
-      $this->_getSQLParam($sql, $LSQL, 'DB', 'db1');
-      $this->_getSQLParam($sql, $LSQL, 'CONVERTLATIN2UTF8');
-      $this->_getSQLParam($sql, $LSQL, 'CONVERTUTF82LATIN');
-      $this->_getSQLParam($sql, $LSQL, 'ROW');
-      $this->_getSQLParam($sql, $LSQL, 'HEAD');
-      $this->_getSQLParam($sql, $LSQL, 'FOOT');
-      $this->_getSQLParam($sql, $LSQL, 'ROWNULL');
-      $this->_getSQLParam($sql, $LSQL, 'HEADNULL');
-      $this->_getSQLParam($sql, $LSQL, 'FOOTNULL');
-      $this->_getSQLParam($sql, $LSQL, 'PAGEFIRST');
-      $this->_getSQLParam($sql, $LSQL, 'PAGELAST');
-      $this->_getSQLParam($sql, $LSQL, 'PAGEINNER');
-      $this->_getSQLParam($sql, $LSQL, 'NOHEADPAGE');
-      $this->_getSQLParam($sql, $LSQL, 'NOFOOTPAGE');
-      $this->_getSQLParam($sql, $LSQL, 'ROWFROM', '1');
-      $this->_getSQLParam($sql, $LSQL, 'ROWCOUNT', '0');
-      $this->_getSQLParam($sql, $LSQL, 'TABLECOLS', '1');
-      $this->_getSQLParam($sql, $LSQL, 'TABLEROWBEGIN');
-      $this->_getSQLParam($sql, $LSQL, 'TABLEROWEND');
-      $this->_getSQLParam($sql, $LSQL, 'GROUP');
-      $this->_getSQLParam($sql, $LSQL, 'GROUPBEGIN');
-      $this->_getSQLParam($sql, $LSQL, 'GROUPEND');
-      if (strpos($sql, 'SQL=') === false) {
-        $LSQL['SQL'] = '';
-      } else {
-        $LSQL['SQL'] = trim(trim(substr($sql, strpos($sql, 'SQL=') + 4)), "\n");
-      }
-      $LSQL['SQL'] = Eisodos::$templateEngine->parse($LSQL['SQL']);
-      try {
-        if ($LSQL['ROW'] == '') {
-          throw new Exception('No ROW template specified');
-        }
-        if ($LSQL['SQL'] == '') {
-          throw new Exception('No SQL template specified');
-        }
-        if (Eisodos::$parameterHandler->eq('ENABLEINLINESQL', 'F', 'T')) {
-          $result = Eisodos::$utils->replace_all($text_, $orig, '<!-- SQL not allowed -->', false, false);
-        } else {
-          $result = Eisodos::$utils->replace_all($text_, $orig, $this->_runSQL($LSQL), false, false);
-        }
-        
-        return ($result);
-      } catch (Exception $e) {
-        return Eisodos::$utils->replace_all(
-          $text_,
-          $orig,
-          '<!-- Error running query: ' . $e->getMessage() . ' -->',
-          false,
-          false
-        );
-      }
     }
     
     public function enabled(): bool {
