@@ -6,6 +6,7 @@
   use Eisodos\Eisodos;
   use Eisodos\Interfaces\ParserInterface;
   use Exception;
+  use RuntimeException;
 
   /**
    * Class SQLParser for backward compatibility
@@ -45,7 +46,7 @@
       $LSQL = array();
       
       $orig = substr($text_, $blockPosition);
-      $orig = substr($orig, 0, strpos($orig, '%SQL%>') + 5);
+      $orig = substr($orig, 0, strpos($orig, '%SQL%>') + 6);
       $sql = substr($orig, 6, -6);
       
       $this->_getSQLParam($sql, $LSQL, 'DB', 'db1');
@@ -116,7 +117,7 @@
               substr(
                 $sql_,
                 strpos($sql_, $parameterName_) + strlen($parameterName_),
-                strpos(substr($sql_, strpos($sql_, $parameterName_) + strlen($parameterName_)), ';') - 1
+                strpos(substr($sql_, strpos($sql_, $parameterName_) + strlen($parameterName_)), ';')
               )
             )
           );
@@ -137,11 +138,6 @@
       $jsonKeys = array();
       
       try {
-        /**
-         * @var array = ['rows'=>array, 'columns'=>array]
-         */
-        //$resultSet = call_user_func_array($this->_callback, $structureParameters_);
-        
         if (!array_key_exists("DB", $structureParameters_)) $structureParameters_["DB"] = "db1";
         if (strlen($structureParameters_["DB"]) > 2
           and substr(trim($structureParameters_["DB"]), 0, 2) === "db") {
@@ -151,7 +147,8 @@
         }
         
         if (!Eisodos::$dbConnectors->connector($dbindex)->connected()) Eisodos::$dbConnectors->connector($dbindex)->connect();
-        $resultSet = Eisodos::$dbConnectors->connector($dbindex)->query(RT_RAW, $structureParameters_["SQL"]);
+        $resultSet_=["rows"=>[],"columns"=>[]];
+        $resultSet = Eisodos::$dbConnectors->connector($dbindex)->query(RT_ALL_ROWS, $structureParameters_["SQL"], $resultSet_["rows"]);
         
         $result = '';
         
@@ -172,17 +169,24 @@
           if ((integer)$structureParameters_["ROWFROM"] < 0) {
             $structureParameters_["ROWFROM"] = "1";
           }
+          /*if ((integer)$structureParameters_["ROWFROM"] > 1) {
+            $resultSet->seek(((integer)$structureParameters_["ROWFROM"]) - 1);
+          }*/
+          
+          $resultSet_["columns"]=Eisodos::$dbConnectors->connector($dbindex)->getLastQueryColumns();
+          
+          // Eisodos::$logger->debug(print_r($resultSet_,true));
           
           $a = 0;
           $tr = 0;
-          $rowFrom = (integer)$structureParameters_["ROWFROM"];
+          $rowFrom = (integer)(Eisodos::$utils->safe_array_value($structureParameters_,"ROWFROM","1"));
           
-          if (!(count($resultSet['rows']) < $rowFrom)) {
+          if (count($resultSet_['rows']) === 0) {
             $result = Eisodos::$templateEngine->getTemplate($structureParameters_["HEADNULL"], array(), false) .
               Eisodos::$templateEngine->getTemplate($structureParameters_["ROWNULL"], array(), false) .
               Eisodos::$templateEngine->getTemplate($structureParameters_["FOOTNULL"], array(), false);
           } else {
-            $LColNames = $resultSet['columns'];
+            $LColNames = $resultSet_['columns'];
             if (preg_match('/[\d]/', $structureParameters_["ROW"]) and is_numeric(
                 $structureParameters_["ROW"]
               )) {
@@ -196,9 +200,9 @@
               }
             }
             if ($rowFrom > 1) {
-              array_slice($resultSet['rows'], $rowFrom - 1);
+              array_slice($resultSet_['rows'], $rowFrom - 1);
             }
-            $row = $resultSet['rows'][$a];
+            $row = $resultSet_['rows'][$a];
             do {
               $a++;
               if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWBEGIN"] !== "")) {
@@ -242,7 +246,7 @@
                     false
                   );
                 } else {
-                  throw new Exception ();
+                  throw new RuntimeException();
                 }
               } catch (Exception $e) {
                 if (strpos($structureParameters_["ROW"], '@') === 0) {
@@ -259,13 +263,15 @@
                   );
                 }
               }
-              if (count($resultSet['rows']) > $a + 1) {
+              if (count($resultSet_['rows']) <= $a + 1) {
                 $row = false;
               } else {
-                $row = $resultSet['rows'][$a + 1];
+                $row = $resultSet_['rows'][$a + 1];
               }
               if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWEND"] !== "")) {
-                if ((!$row) or ($a === (integer)$structureParameters_["ROWCOUNT"]) or ($a % (integer)$structureParameters_["TABLECOLS"] === 0)) {
+                if (($row===false)
+                   || ($a === (integer)$structureParameters_["ROWCOUNT"])
+                   || ($a % (integer)$structureParameters_["TABLECOLS"] === 0)) {
                   $tr++;
                   Eisodos::$parameterHandler->setParam("SQLTABLEROWCOUNT", (string)$tr);
                   $result .= Eisodos::$templateEngine->getTemplate(
@@ -275,7 +281,7 @@
                   );
                 }
               }
-            } while (!(!$row or $a === (integer)$structureParameters_["ROWCOUNT"]));
+            } while (!($row===false || $a === (integer)$structureParameters_["ROWCOUNT"]));
             
             if ((integer)$structureParameters_["ROWCOUNT"] > 0) {
               Eisodos::$parameterHandler->setParam(
