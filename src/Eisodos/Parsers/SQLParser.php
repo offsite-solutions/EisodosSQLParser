@@ -263,10 +263,10 @@
                   );
                 }
               }
-              if (count($resultSet_['rows']) <= $a + 1) {
+              if (count($resultSet_['rows']) <= $a) {
                 $row = false;
               } else {
-                $row = $resultSet_['rows'][$a + 1];
+                $row = $resultSet_['rows'][$a];
               }
               if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWEND"] !== "")) {
                 if (($row===false)
