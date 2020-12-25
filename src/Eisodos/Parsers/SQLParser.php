@@ -1,5 +1,4 @@
-<?php
-  
+<?php /** @noinspection DuplicatedCode SpellCheckingInspection PhpUnusedFunctionInspection NotOptimalIfConditionsInspection */
   
   namespace Eisodos\Parsers;
   
@@ -7,7 +6,7 @@
   use Eisodos\Interfaces\ParserInterface;
   use Exception;
   use RuntimeException;
-
+  
   /**
    * Class SQLParser for backward compatibility
    * @package Eisodos
@@ -42,13 +41,13 @@
     /**
      * @inheritDoc
      */
-    public function parse($text_, $blockPosition = false): string {
+    public function parse(string $text_, $blockPosition_ = false): string {
       $LSQL = array();
-      
-      $orig = substr($text_, $blockPosition);
+    
+      $orig = substr($text_, $blockPosition_);
       $orig = substr($orig, 0, strpos($orig, '%SQL%>') + 6);
       $sql = substr($orig, 6, -6);
-      
+    
       $this->_getSQLParam($sql, $LSQL, 'DB', 'db1');
       $this->_getSQLParam($sql, $LSQL, 'CONVERTLATIN2UTF8');
       $this->_getSQLParam($sql, $LSQL, 'CONVERTUTF82LATIN');
@@ -147,7 +146,7 @@
         }
         
         if (!Eisodos::$dbConnectors->connector($dbindex)->connected()) Eisodos::$dbConnectors->connector($dbindex)->connect();
-        $resultSet_=["rows"=>[],"columns"=>[]];
+        $resultSet_ = ["rows" => [], "columns" => []];
         $resultSet = Eisodos::$dbConnectors->connector($dbindex)->query(RT_ALL_ROWS, $structureParameters_["SQL"], $resultSet_["rows"]);
         
         $result = '';
@@ -172,14 +171,14 @@
           /*if ((integer)$structureParameters_["ROWFROM"] > 1) {
             $resultSet->seek(((integer)$structureParameters_["ROWFROM"]) - 1);
           }*/
-          
-          $resultSet_["columns"]=Eisodos::$dbConnectors->connector($dbindex)->getLastQueryColumns();
+  
+          $resultSet_["columns"] = Eisodos::$dbConnectors->connector($dbindex)->getLastQueryColumns();
           
           // Eisodos::$logger->debug(print_r($resultSet_,true));
           
           $a = 0;
           $tr = 0;
-          $rowFrom = (integer)(Eisodos::$utils->safe_array_value($structureParameters_,"ROWFROM","1"));
+          $rowFrom = (integer)(Eisodos::$utils->safe_array_value($structureParameters_, "ROWFROM", "1"));
           
           if (count($resultSet_['rows']) === 0) {
             $result = Eisodos::$templateEngine->getTemplate($structureParameters_["HEADNULL"], array(), false) .
@@ -269,9 +268,9 @@
                 $row = $resultSet_['rows'][$a];
               }
               if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWEND"] !== "")) {
-                if (($row===false)
-                   || ($a === (integer)$structureParameters_["ROWCOUNT"])
-                   || ($a % (integer)$structureParameters_["TABLECOLS"] === 0)) {
+                if (($row === false)
+                  || ($a === (integer)$structureParameters_["ROWCOUNT"])
+                  || ($a % (integer)$structureParameters_["TABLECOLS"] === 0)) {
                   $tr++;
                   Eisodos::$parameterHandler->setParam("SQLTABLEROWCOUNT", (string)$tr);
                   $result .= Eisodos::$templateEngine->getTemplate(
@@ -281,7 +280,7 @@
                   );
                 }
               }
-            } while (!($row===false || $a === (integer)$structureParameters_["ROWCOUNT"]));
+            } while (!($row === false || $a === (integer)$structureParameters_["ROWCOUNT"]));
             
             if ((integer)$structureParameters_["ROWCOUNT"] > 0) {
               Eisodos::$parameterHandler->setParam(
