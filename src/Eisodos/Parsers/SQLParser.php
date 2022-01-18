@@ -130,7 +130,7 @@
     }
     
     /**
-     * @param $structureParameters_
+     * @param array $structureParameters_
      * @return string
      */
     private function _runSQL($structureParameters_): string {
