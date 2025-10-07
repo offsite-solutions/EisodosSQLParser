@@ -2,7 +2,7 @@
   
   namespace Eisodos\Parser;
   
-  use Eisodos;
+  use Eisodos\Eisodos;
   use Exception;
   use Eisodos\Interfaces\ParserInterface;
   use RuntimeException;
@@ -145,7 +145,9 @@
           $dbindex = 1 * Eisodos::$parameterHandler->getParam($structureParameters_["DB"], "1");
         }
         
-        if (!Eisodos::$dbConnectors->connector($dbindex)->connected()) Eisodos::$dbConnectors->connector($dbindex)->connect();
+        if (!Eisodos::$dbConnectors->connector($dbindex)->connected()) {
+          Eisodos::$dbConnectors->connector($dbindex)->connect();
+        }
         $resultSet_ = ["rows" => [], "columns" => []];
         $resultSet = Eisodos::$dbConnectors->connector($dbindex)->query(RT_ALL_ROWS, $structureParameters_["SQL"], $resultSet_["rows"]);
         
@@ -227,7 +229,7 @@
               }
               $jsonKeys = array();
               
-              foreach ($LColNames as $colname => $colindex) {
+              foreach ($LColNames as $colname) {
                 Eisodos::$parameterHandler->setParam("SQL" . $colname, $row[$colname]);
                 if (strpos($colname, 'json__') === 0 and $row[$colname] !== "") {
                   foreach (json_decode($row[$colname], true, 512, JSON_THROW_ON_ERROR) as $jskey => $jsvalue) {

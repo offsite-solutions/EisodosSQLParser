@@ -8,23 +8,10 @@
       "email": "info@offsite-solutions.com"
     }
   ],
-  "minimum-stability": "dev",
-  "repositories": [
-    {
-        "type": "path",
-        "url": "../Base",
-        "options": {
-            "symlink": true
-        }
-    }
-  ],
+  "minimum-stability": "stable",
   "require": {
     "php": ">=8.4.0",
-    "offsite-solutions/eisodos": "@dev"
-  },
-  "require-dev": {
-  },
-  "suggest": {
+    "offsite-solutions/eisodos": "^1.1.6"
   },
   "autoload": {
     "psr-0": {
