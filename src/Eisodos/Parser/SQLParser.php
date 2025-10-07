@@ -1,10 +1,10 @@
 <?php /** @noinspection DuplicatedCode SpellCheckingInspection PhpUnusedFunctionInspection NotOptimalIfConditionsInspection */
   
-  namespace Eisodos\Parsers;
+  namespace Eisodos\Parser;
   
-  use Eisodos\Eisodos;
-  use Eisodos\Interfaces\ParserInterface;
+  use Eisodos;
   use Exception;
+  use Eisodos\Interfaces\ParserInterface;
   use RuntimeException;
   
   /**
