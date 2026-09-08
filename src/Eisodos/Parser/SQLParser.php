@@ -167,11 +167,11 @@
           Eisodos::$render->pageDebugInfo($alert);
           $result = "<!-- error running query -->";
         } else {
-          if ((integer)$structureParameters_["ROWFROM"] < 0) {
+          if ((int)$structureParameters_["ROWFROM"] < 0) {
             $structureParameters_["ROWFROM"] = "1";
           }
-          /*if ((integer)$structureParameters_["ROWFROM"] > 1) {
-            $resultSet->seek(((integer)$structureParameters_["ROWFROM"]) - 1);
+          /*if ((int)$structureParameters_["ROWFROM"] > 1) {
+            $resultSet->seek(((int)$structureParameters_["ROWFROM"]) - 1);
           }*/
   
           $resultSet_["columns"] = Eisodos::$dbConnectors->connector($dbindex)->getLastQueryColumns();
@@ -180,7 +180,7 @@
           
           $a = 0;
           $tr = 0;
-          $rowFrom = (integer)(Eisodos::$utils->safe_array_value($structureParameters_, "ROWFROM", "1"));
+          $rowFrom = (int)(Eisodos::$utils->safe_array_value($structureParameters_, "ROWFROM", "1"));
           
           if (count($resultSet_['rows']) === 0) {
             $result = Eisodos::$templateEngine->getTemplate($structureParameters_["HEADNULL"], array(), false) .
@@ -194,7 +194,7 @@
               $k = -1;
               foreach ($LColNames as $key => $value) {
                 $k++;
-                if ($k === (integer)$structureParameters_["ROW"]) {
+                if ($k === (int)$structureParameters_["ROW"]) {
                   $RowTemplate = $key;
                   break;
                 }
@@ -206,8 +206,8 @@
             $row = $resultSet_['rows'][$a];
             do {
               $a++;
-              if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWBEGIN"] !== "")) {
-                if (($a - 1) % (integer)$structureParameters_["TABLECOLS"] === 0) {
+              if (((int)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWBEGIN"] !== "")) {
+                if (($a - 1) % (int)$structureParameters_["TABLECOLS"] === 0) {
                   $tr++;
                   Eisodos::$parameterHandler->setParam("SQLTABLEROWCOUNT", (string)$tr);
                   $result .= Eisodos::$templateEngine->getTemplate(
@@ -220,7 +220,7 @@
               Eisodos::$parameterHandler->setParam("SQLROWRELCOUNT", (string)$a);
               Eisodos::$parameterHandler->setParam(
                 "SQLROWABSCOUNT",
-                (string)((integer)$structureParameters_["ROWFROM"] + $a - 1)
+                (string)((int)$structureParameters_["ROWFROM"] + $a - 1)
               );
               
               // clean up json parameters
@@ -269,10 +269,10 @@
               } else {
                 $row = $resultSet_['rows'][$a];
               }
-              if (((integer)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWEND"] !== "")) {
+              if (((int)$structureParameters_["TABLECOLS"] > 0) and ($structureParameters_["TABLEROWEND"] !== "")) {
                 if (($row === false)
-                  || ($a === (integer)$structureParameters_["ROWCOUNT"])
-                  || ($a % (integer)$structureParameters_["TABLECOLS"] === 0)) {
+                  || ($a === (int)$structureParameters_["ROWCOUNT"])
+                  || ($a % (int)$structureParameters_["TABLECOLS"] === 0)) {
                   $tr++;
                   Eisodos::$parameterHandler->setParam("SQLTABLEROWCOUNT", (string)$tr);
                   $result .= Eisodos::$templateEngine->getTemplate(
@@ -282,25 +282,25 @@
                   );
                 }
               }
-            } while (!($row === false || $a === (integer)$structureParameters_["ROWCOUNT"]));
+            } while (!($row === false || $a === (int)$structureParameters_["ROWCOUNT"]));
             
-            if ((integer)$structureParameters_["ROWCOUNT"] > 0) {
+            if ((int)$structureParameters_["ROWCOUNT"] > 0) {
               Eisodos::$parameterHandler->setParam(
                 "SQLNEXTPAGE",
-                (string)($a + (integer)$structureParameters_["ROWFROM"])
+                (string)($a + (int)$structureParameters_["ROWFROM"])
               );
               Eisodos::$parameterHandler->setParam(
                 "SQLPREVPAGE",
-                (string)((integer)$structureParameters_["ROWFROM"] - (integer)$structureParameters_["ROWCOUNT"])
+                (string)((int)$structureParameters_["ROWFROM"] - (int)$structureParameters_["ROWCOUNT"])
               );
               $modT = "";
-              if (((integer)$structureParameters_["ROWFROM"] === 1) and ($row)) {
+              if (((int)$structureParameters_["ROWFROM"] === 1) and ($row)) {
                 $modT = $structureParameters_["PAGEFIRST"];
               }
-              if (((integer)$structureParameters_["ROWFROM"] > 1) and ($row)) {
+              if (((int)$structureParameters_["ROWFROM"] > 1) and ($row)) {
                 $modT = $structureParameters_["PAGEINNER"];
               }
-              if (((integer)$structureParameters_["ROWFROM"] > 1) and (!$row)) {
+              if (((int)$structureParameters_["ROWFROM"] > 1) and (!$row)) {
                 $modT = $structureParameters_["PAGELAST"];
               }
               if ($modT !== "") {
