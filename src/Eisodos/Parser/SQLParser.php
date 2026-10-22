@@ -195,7 +195,8 @@
               foreach ($LColNames as $key => $value) {
                 $k++;
                 if ($k === (int)$structureParameters_["ROW"]) {
-                  $RowTemplate = $key;
+                  // getLastQueryColumns() is a list of names (MDB2's getColumnNames() was name => index)
+                  $RowTemplate = $value;
                   break;
                 }
               }
